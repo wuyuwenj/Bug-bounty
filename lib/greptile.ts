@@ -266,7 +266,12 @@ function getMockReview(reviewId: string): GreptileReview {
 
 export function computeVerdict(review: GreptileReview): "pass" | "fail" {
   const score = review.score || 0;
-  const issuesCount = review.issues?.length || 0;
 
-  return score >= 80 && issuesCount === 0 ? "pass" : "fail";
+  // Count only critical/error issues, not suggestions or warnings
+  const criticalIssues = review.issues?.filter(
+    (issue) => issue.severity === "critical" || issue.type === "error"
+  ) || [];
+
+  // Pass if score >= 80 and no critical issues
+  return score >= 80 && criticalIssues.length === 0 ? "pass" : "fail";
 }
