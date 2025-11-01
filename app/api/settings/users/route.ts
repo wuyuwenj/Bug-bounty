@@ -3,7 +3,7 @@ import { userMapping } from "@/lib/store";
 
 export async function GET() {
   try {
-    const users = userMapping.getAll();
+    const users = await userMapping.getAll();
     return NextResponse.json({ success: true, users });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    userMapping.set(githubUsername, stripeCustomerId);
+    await userMapping.set(githubUsername, stripeCustomerId);
 
     return NextResponse.json({
       success: true,
@@ -59,7 +59,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    userMapping.delete(githubUsername);
+    await userMapping.delete(githubUsername);
 
     return NextResponse.json({
       success: true,

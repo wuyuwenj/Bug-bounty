@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       const reviewId = await startGreptileReview(owner, repoName, prNumber);
 
       // Store PR info
-      store.set(id, {
+      await store.set(id, {
         id,
         title: pr.title,
         author: pr.user.login,

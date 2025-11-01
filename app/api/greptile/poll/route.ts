@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing PR id" }, { status: 400 });
     }
 
-    const pr = store.get(id);
+    const pr = await store.get(id);
     if (!pr) {
       return NextResponse.json({ error: "PR not found" }, { status: 404 });
     }
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const verdict = computeVerdict(review);
 
     // Update store with full review data
-    store.update(id, {
+    await store.update(id, {
       status: verdict,
       notes: `Score: ${review.score}/100. ${review.summary || ""}`,
       greptileReview: review, // Save full review for detail page

@@ -3,7 +3,7 @@ import { store } from "@/lib/store";
 
 export async function GET() {
   try {
-    const prs = store.getAll();
+    const prs = await store.getAll();
     return NextResponse.json({ success: true, prs });
   } catch (error) {
     console.error("Error fetching PRs:", error);
