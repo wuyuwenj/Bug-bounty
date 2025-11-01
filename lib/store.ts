@@ -18,6 +18,9 @@ export interface PRItem {
 // In-memory store
 const prStore = new Map<string, PRItem>();
 
+// GitHub username to Stripe customer ID mapping
+const userMappingStore = new Map<string, string>();
+
 export const store = {
   set(id: string, data: PRItem) {
     prStore.set(id, { ...data, updatedAt: new Date() });
@@ -42,5 +45,27 @@ export const store = {
 
   delete(id: string) {
     prStore.delete(id);
+  },
+};
+
+// User mapping store
+export const userMapping = {
+  set(githubUsername: string, stripeCustomerId: string) {
+    userMappingStore.set(githubUsername.toLowerCase(), stripeCustomerId);
+  },
+
+  get(githubUsername: string): string | undefined {
+    return userMappingStore.get(githubUsername.toLowerCase());
+  },
+
+  getAll(): Array<{ githubUsername: string; stripeCustomerId: string }> {
+    return Array.from(userMappingStore.entries()).map(([username, customerId]) => ({
+      githubUsername: username,
+      stripeCustomerId: customerId,
+    }));
+  },
+
+  delete(githubUsername: string) {
+    userMappingStore.delete(githubUsername.toLowerCase());
   },
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface PRItem {
   id: string;
@@ -95,13 +96,20 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Greptile PR Bonus Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Review PRs, poll Greptile for verdicts, and credit contributors via Stripe
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Greptile PR Bonus Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Review PRs, poll Greptile for verdicts, and credit contributors via Stripe
+            </p>
+          </div>
+          <Link href="/settings">
+            <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium transition">
+              ⚙️ Settings
+            </button>
+          </Link>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-6">

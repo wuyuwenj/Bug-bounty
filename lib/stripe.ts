@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { userMapping } from "./store";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-12-18.acacia",
@@ -7,6 +8,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 export async function getOrCreateCustomer(
   githubHandle: string
 ): Promise<string> {
+  // Check if there's a mapped customer ID
+  const mappedCustomerId = userMapping.get(githubHandle);
+  if (mappedCustomerId) {
+    return mappedCustomerId;
+  }
+
+  // Fall back to old behavior: search or create by email
   const email = `${githubHandle}@example.dev`;
 
   // Search for existing customer
