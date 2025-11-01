@@ -186,6 +186,12 @@ export default function Dashboard() {
                 )}
 
                 <div className="flex gap-2">
+                  <Link href={`/pr/${encodeURIComponent(pr.id)}`}>
+                    <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm font-medium">
+                      View Details
+                    </button>
+                  </Link>
+
                   <button
                     onClick={() => handlePoll(pr.id)}
                     disabled={loading === pr.id || pr.status === "credited"}

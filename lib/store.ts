@@ -6,6 +6,7 @@ export interface PRItem {
   author: string;
   status: PRStatus;
   greptileReviewId?: string;
+  greptileReview?: any; // Full Greptile review object
   notes?: string;
   creditedAmount?: number;
   customerId?: string;

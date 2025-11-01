@@ -36,10 +36,11 @@ export async function POST(req: NextRequest) {
     // Compute verdict
     const verdict = computeVerdict(review);
 
-    // Update store
+    // Update store with full review data
     store.update(id, {
       status: verdict,
       notes: `Score: ${review.score}/100. ${review.summary || ""}`,
+      greptileReview: review, // Save full review for detail page
     });
 
     return NextResponse.json({
