@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PullRequest {
+  id                String   @id @default(cuid())
+  prId              String   @unique // owner/repo#pr
+  title             String
+  author            String
+  status            String   // "reviewing" | "pass" | "fail" | "credited" | "error"
+  repo              String
+  owner             String
+  prNumber          Int
+  greptileReviewId  String?
+  greptileReview    Json?    // Full Greptile review object
+  notes             String?
+  creditedAmount    Int?
+  customerId        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([author])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model UserMapping {
+  id                String   @id @default(cuid())
+  githubUsername    String   @unique
+  stripeCustomerId  String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([githubUsername])
+}
