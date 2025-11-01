@@ -112,18 +112,6 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="font-semibold text-lg mb-3">Webhook URLs</h2>
-          <div className="space-y-2 text-sm">
-            <div>
-              <span className="text-gray-600">GitHub webhook: </span>
-              <code className="bg-gray-100 px-2 py-1 rounded">
-                {process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/webhooks/github
-              </code>
-            </div>
-          </div>
-        </div>
-
         <div className="mb-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-800">
             Pull Requests ({prs.length})

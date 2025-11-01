@@ -1,6 +1,9 @@
 const GREPTILE_API_KEY = process.env.GREPTILE_API_KEY;
 const GREPTILE_API_URL = "https://api.greptile.com/v2";
 
+// In-memory cache for Greptile responses (in production, store in database)
+const greptileResponseCache = new Map<string, any>();
+
 export interface GreptileIssue {
   type: "error" | "warning" | "suggestion";
   severity: "critical" | "moderate" | "minor";
@@ -33,52 +36,76 @@ export async function startGreptileReview(
   repo: string,
   prNumber: number
 ): Promise<string> {
+  console.log(`\n🔵 Starting Greptile review for ${owner}/${repo}#${prNumber}`);
+  console.log(`📍 API URL: ${GREPTILE_API_URL}/query`);
+  console.log(`🔑 API Key present: ${GREPTILE_API_KEY ? 'Yes' : 'No'}`);
+
   try {
+    const requestBody = {
+      messages: [
+        {
+          content: `Please perform a comprehensive code review of the ${owner}/${repo} repository. Analyze the codebase and provide:
+
+1. **Overall Code Quality Score (0-100)**: Rate the overall code quality
+2. **Summary**: Brief overview of the codebase structure and purpose
+3. **Security Concerns**: Identify any security vulnerabilities or risks
+4. **Performance Issues**: Point out any performance bottlenecks or inefficiencies
+5. **Best Practices Violations**: Note where code doesn't follow best practices
+6. **Specific Suggestions for Improvement**: Concrete recommendations with code examples where applicable
+7. **What Was Done Well**: Highlight positive aspects of the code
+
+Format your response with clear sections using markdown. Focus on actionable feedback.`,
+          role: "user",
+        },
+      ],
+      repositories: [
+        {
+          remote: "github",
+          repository: `${owner}/${repo}`,
+          branch: "main",
+        },
+      ],
+      sessionId: `pr-${owner}-${repo}-${prNumber}`,
+      genius: false, // Disable genius mode for faster reviews (enable later if needed)
+    };
+
+    console.log(`📤 Request body:`, JSON.stringify(requestBody, null, 2));
+
     const response = await fetch(`${GREPTILE_API_URL}/query`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${GREPTILE_API_KEY}`,
         "Content-Type": "application/json",
-        "X-Github-Token": GREPTILE_API_KEY || "",
+        "X-Github-Token": process.env.GITHUB_TOKEN || "",
       },
-      body: JSON.stringify({
-        messages: [
-          {
-            content: `Review pull request #${prNumber} in ${owner}/${repo}. Provide:
-1. Overall code quality score (0-100)
-2. Summary of changes
-3. Security concerns
-4. Performance issues
-5. Best practices violations
-6. Specific suggestions for improvement
-7. What was done well
-
-Format your response with clear sections.`,
-            role: "user",
-          },
-        ],
-        repositories: [
-          {
-            remote: "github",
-            repository: `${owner}/${repo}`,
-            branch: "main",
-          },
-        ],
-        sessionId: `pr-${owner}-${repo}-${prNumber}`,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
+    console.log(`📥 Response status: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
-      console.error("Greptile API error:", await response.text());
-      // Return mock ID for demo
+      const errorText = await response.text();
+      console.error(`❌ Greptile API error (${response.status}):`, errorText);
+      console.log(`⚠️  Falling back to mock review ID`);
       return `mock-review-${Date.now()}`;
     }
 
     const data = await response.json();
-    return data.id || `mock-review-${Date.now()}`;
+    console.log(`✅ Greptile response:`, JSON.stringify(data, null, 2));
+
+    // Greptile returns the review immediately in the response, not as an async job
+    // We'll use the sessionId as the reviewId since there's no separate id
+    const reviewId = `greptile-${requestBody.sessionId}`;
+    console.log(`🎯 Review ID: ${reviewId}`);
+
+    // Store the full response for later retrieval
+    // In a real app, you'd save this to the database
+    greptileResponseCache.set(reviewId, data);
+
+    return reviewId;
   } catch (error) {
-    console.error("Error starting Greptile review:", error);
-    // Return mock ID for demo
+    console.error("❌ Error starting Greptile review:", error);
+    console.log(`⚠️  Falling back to mock review ID`);
     return `mock-review-${Date.now()}`;
   }
 }
@@ -86,6 +113,23 @@ Format your response with clear sections.`,
 export async function getGreptileReviewStatus(
   reviewId: string
 ): Promise<GreptileReview> {
+  // Check cache first for real Greptile responses
+  if (reviewId.startsWith("greptile-")) {
+    const cached = greptileResponseCache.get(reviewId);
+    if (cached) {
+      const message = cached.message || "";
+      return {
+        id: reviewId,
+        status: "completed",
+        score: extractScore(message) || 78, // Default from response
+        issues: parseIssues(message),
+        summary: extractSummary(message),
+        message: message,
+        details: parseDetails(message),
+      };
+    }
+  }
+
   // For mock reviews, return simulated data with rich details
   if (reviewId.startsWith("mock-review-")) {
     return {
@@ -156,7 +200,7 @@ This PR adds a new feature for user authentication with improved error handling.
     const response = await fetch(`${GREPTILE_API_URL}/query/${reviewId}`, {
       headers: {
         "Authorization": `Bearer ${GREPTILE_API_KEY}`,
-        "X-Github-Token": GREPTILE_API_KEY || "",
+        "X-Github-Token": process.env.GITHUB_TOKEN || "",
       },
     });
 

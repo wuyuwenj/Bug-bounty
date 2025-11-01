@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
 
 interface GreptileIssue {
   type: "error" | "warning" | "suggestion";
@@ -264,11 +267,62 @@ export default function PRDetailPage() {
             {/* Full Review Message */}
             {review.message && (
               <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Full Review</h2>
-                <div className="prose prose-sm max-w-none">
-                  <pre className="whitespace-pre-wrap text-sm text-gray-700 bg-gray-50 p-4 rounded overflow-x-auto">
+                <h2 className="text-xl font-semibold mb-4">Greptile Review</h2>
+                <div className="prose prose-sm max-w-none text-gray-700">
+                  <ReactMarkdown
+                    rehypePlugins={[rehypeRaw]}
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({ children }) => (
+                        <h1 className="text-2xl font-bold mt-6 mb-3">{children}</h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2 className="text-xl font-bold mt-5 mb-2">{children}</h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="text-lg font-semibold mt-4 mb-2">{children}</h3>
+                      ),
+                      p: ({ children }) => <p className="mb-3">{children}</p>,
+                      ul: ({ children }) => <ul className="list-disc ml-5 mb-3">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal ml-5 mb-3">{children}</ol>,
+                      li: ({ children }) => <li className="mb-1">{children}</li>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                      code: ({ children }) => (
+                        <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
+                          {children}
+                        </code>
+                      ),
+                      pre: ({ children }) => (
+                        <pre className="bg-gray-50 p-4 rounded overflow-x-auto mb-3">
+                          {children}
+                        </pre>
+                      ),
+                      table: ({ children }) => (
+                        <table className="min-w-full divide-y divide-gray-300 my-4 border">
+                          {children}
+                        </table>
+                      ),
+                      thead: ({ children }) => (
+                        <thead className="bg-gray-50">{children}</thead>
+                      ),
+                      tbody: ({ children }) => (
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                          {children}
+                        </tbody>
+                      ),
+                      tr: ({ children }) => <tr>{children}</tr>,
+                      th: ({ children }) => (
+                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {children}
+                        </th>
+                      ),
+                      td: ({ children }) => (
+                        <td className="px-3 py-4 text-sm text-gray-900">{children}</td>
+                      ),
+                    }}
+                  >
                     {review.message}
-                  </pre>
+                  </ReactMarkdown>
                 </div>
               </div>
             )}

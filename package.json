@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "import-prs": "tsx scripts/import-prs.ts"
+    "import-prs": "tsx scripts/import-prs.ts",
+    "refresh-reviews": "tsx scripts/refresh-reviews.ts",
+    "reset-prs": "tsx scripts/reset-prs.ts"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +26,9 @@
     "prisma": "^6.18.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
     "stripe": "^19.2.0",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
