@@ -9,7 +9,7 @@ export async function getOrCreateCustomer(
   githubHandle: string
 ): Promise<string> {
   // Check if there's a mapped customer ID
-  const mappedCustomerId = userMapping.get(githubHandle);
+  const mappedCustomerId = await userMapping.get(githubHandle);
   if (mappedCustomerId) {
     return mappedCustomerId;
   }

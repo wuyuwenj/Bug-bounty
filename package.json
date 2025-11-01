@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "import-prs": "tsx scripts/import-prs.ts"
   },
   "keywords": [],
   "author": "",
@@ -26,5 +27,8 @@
     "stripe": "^19.2.0",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6"
   }
 }
